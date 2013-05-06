@@ -1,6 +1,7 @@
 package main
 
 import (
+	"math"
 	"math/rand"
 )
 
@@ -10,25 +11,32 @@ type glass struct {
 	reflectance float64
 }
 
-func (m glass) bounce(incoming, normal vec3) (out vec3, c color, e color) {
-	var i1, i2 float64
-	t1 := incoming.dot(normal)
+func (m *glass) bounce(incoming, normal vec3) (out vec3, c color, e color) {
 	c = m.color
 	e = black
-	if t1 >= 0 {
-		i1, i2 = m.index, 1.0
+	c1 := -normal.dot(incoming)
+	var n1, n2 float64
+	if c1 >= 0 {
+		n1, n2 = 1.0, m.index
 	} else {
-		i1, i2 = 1.0, m.index
+		n1, n2 = m.index, 1.0
 	}
-	r := i1 / i2
-	t2 := 1 - r*r*(1-t1*t1)
-	rs := (i1*t1 - i2*t2) / (i1*t1 + i2*t2)
-	rp := (i2*t1 - i1*t2) / (i2*t1 + i1*t2)
-	reflectance := m.reflectance + rs*rs + rp*rp
+	r := n1 / n2
+	s := 1 - r*r*(1-c1*c1)
+	if s < 0 {
+		return incoming, black, black
+	}
+	c2 := math.Sqrt(s)
+	if c1 < 0 {
+		c2 = -c2
+	}
+	rp := (n2*c1 - n1*c2) / (n2*c1 + n1*c2)
+	rs := (n1*c1 - n2*c2) / (n1*c1 + n2*c2)
+	reflectance := (rs*rs + rp*rp) / 2
 	if rand.Float64() < reflectance {
-		out = incoming.add(normal.scale(t1 * 2))
+		out = incoming.reflect(normal)
 	} else {
-		out = incoming.add(normal.scale(t1)).scale(r).add(normal.scale(-t2))
+		out = incoming.scale(r).add(normal.scale(r*c1 - c2)).norm()
 	}
 	return
 }

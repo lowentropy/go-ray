@@ -1,10 +1,7 @@
 package main
 
 import (
-	_ "fmt"
-	c "image/color"
 	"math"
-	"runtime"
 )
 
 type body struct {
@@ -47,52 +44,7 @@ func (scene *scene) Intersect(ray ray) (closest hit, found *body, any bool) {
 }
 
 func (scene *scene) Trace(x, y int) color {
-	ray := scene.camera.Shoot(x, y)
+	jitter := 1.0
+	ray := scene.camera.Shoot(x, y, jitter)
 	return trace(scene, ray, 0)
-}
-
-func (scene *scene) Render() [][]c.Color {
-	w, h := scene.camera.w, scene.camera.h
-	n := 10
-	cpus := runtime.GOMAXPROCS(0)
-	ch := make(chan bool, cpus)
-	step := h/cpus + 1
-
-	buffer := make([][]color, h)
-	window := make([][]c.Color, h)
-
-	for y := 0; y < h; y++ {
-		window[y] = make([]c.Color, w)
-		buffer[y] = make([]color, w)
-	}
-
-	for y0 := 0; y0 < h; y0 += step {
-		go func(y0 int) {
-			for y := y0; y < y0+step && y < h; y++ {
-				for x := 0; x < w; x++ {
-					for i := 0; i < n; i++ {
-						light := scene.Trace(x, y)
-						buffer[y][x] = buffer[y][x].add(light)
-					}
-				}
-			}
-			ch <- true
-		}(y0)
-	}
-
-	for i := 0; i < cpus; i++ {
-		<-ch
-	}
-
-	for y := 0; y < h; y++ {
-		for x := 0; x < w; x++ {
-			rc := buffer[y][x]
-			r := uint8(math.Min(rc.r*255/float64(n), 255))
-			g := uint8(math.Min(rc.g*255/float64(n), 255))
-			b := uint8(math.Min(rc.b*255/float64(n), 255))
-			window[y][x] = c.RGBA{r, g, b, 255}
-		}
-	}
-
-	return window
 }

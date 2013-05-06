@@ -5,7 +5,7 @@ type color struct {
 }
 
 const (
-	SUN_INTENSITY = 1.0
+	SUN_INTENSITY = 2.0
 )
 
 var red = color{1, 0, 0}
@@ -17,6 +17,10 @@ var sunlight = color{1.6 * SUN_INTENSITY, 1.47 * SUN_INTENSITY, 1.29 * SUN_INTEN
 
 func (a color) mul(b color) color {
 	return color{a.r * b.r, a.g * b.g, a.b * b.b}
+}
+
+func (a color) scale(s float64) color {
+	return color{a.r * s, a.g * s, a.b * s}
 }
 
 func (a color) add(b color) color {

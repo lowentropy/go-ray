@@ -7,17 +7,17 @@ type sphere struct {
 	radius float64
 }
 
-func (s sphere) intersect(ray ray) (hit, bool) {
-	d := ray.origin.sub(s.center)
-	dist2 := d.dot(d)
-	rad2 := s.radius * s.radius
-	inside := dist2 < rad2
-	tca := -d.dot(ray.normal)
-	if !inside && tca < 0 {
+func (s *sphere) intersect(ray ray) (hit, bool) {
+	o := ray.origin.sub(s.center)
+	ll := o.dot(o)
+	rr := s.radius * s.radius
+	i := ll < rr
+	tca := -o.dot(ray.normal)
+	if !i && fneg(tca) {
 		return hit{}, false
 	}
-	t2hc := rad2 - dist2 + (tca * tca)
-	if !inside && t2hc <= 0 {
+	t2hc := rr - ll + tca*tca
+	if !i && !fpos(t2hc) {
 		return hit{}, false
 	}
 	thc := math.Sqrt(t2hc)

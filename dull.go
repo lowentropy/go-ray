@@ -4,7 +4,9 @@ type dull struct {
 	color color
 }
 
-func (m dull) bounce(incoming, normal vec3) (vec3, color, color) {
+func (m *dull) bounce(incoming, normal vec3) (vec3, color, color) {
 	v := uniHemiSample(normal)
-	return v, m.color, black
+	// color := m.color
+	color := m.color.scale(v.dot(normal))
+	return v, color, black
 }

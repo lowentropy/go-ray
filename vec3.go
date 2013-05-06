@@ -10,7 +10,7 @@ type vec3 struct {
 }
 
 const (
-	FTOL = 0.0000001
+	FTOL = 0.00000001
 )
 
 var V0 = vec3{0, 0, 0}
@@ -18,6 +18,25 @@ var V1 = vec3{1, 1, 1}
 var X = vec3{1, 0, 0}
 var Y = vec3{0, 1, 0}
 var Z = vec3{0, 0, 1}
+
+func fabs(f float64) float64 {
+	if f < 0 {
+		return -f
+	}
+	return f
+}
+
+func fzero(f float64) bool {
+	return fabs(f) < FTOL
+}
+
+func fneg(f float64) bool {
+	return !(f > 0 || fzero(f))
+}
+
+func fpos(f float64) bool {
+	return !(f < 0 || fzero(f))
+}
 
 func (a vec3) add(b vec3) vec3 {
 	return vec3{a.x + b.x, a.y + b.y, a.z + b.z}

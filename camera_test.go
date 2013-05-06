@@ -3,7 +3,7 @@ package main
 import "testing"
 
 func Test_NewCamera(t *testing.T) {
-	c := NewCamera(V0, Z, 2, 1)
+	c := NewCamera(V0, Z, 2, 1, 1)
 	if c.aspect != 2 {
 		t.Fail()
 	}
@@ -13,19 +13,19 @@ func Test_NewCamera(t *testing.T) {
 }
 
 func Test_CameraShoot(t *testing.T) {
-	c := NewCamera(V0, Z, 3, 3)
-	r := c.Shoot(1, 1)
+	c := NewCamera(V0, Z, 3, 3, 1)
+	r := c.Shoot(1, 1, 0)
 	expected := ray{V0, Z}
 	if r != expected {
 		t.Fail()
 	}
 
-	r = c.Shoot(0, 0)
+	r = c.Shoot(0, 0, 0)
 	if r.normal.x != r.normal.y {
-		t.Fail()
+		t.Fatal("Normal x", r.normal.x, "not equal to y", r.normal.y)
 	}
 
 	if r.normal.x*2 != r.normal.z {
-		t.Fail()
+		t.Fatal("normal x", r.normal.x, "was not half of z", r.normal.z)
 	}
 }

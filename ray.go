@@ -15,3 +15,7 @@ func newHit(s shape, ray ray, t float64) hit {
 	normal := s.normal(pt)
 	return hit{&ray, t, pt, normal}
 }
+
+func liftRay(r *ray) {
+	r.origin = r.origin.add(r.normal.scale(FTOL))
+}
